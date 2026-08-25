@@ -87,6 +87,38 @@ az containerapp update --name <container_app name> --resource-group <rg name> \
   --image <login_server>/assistente-medico:latest
 ```
 
+> `az containerapp update` precisa da extensão `containerapp` do CLI, que em
+> algumas máquinas Windows falha ao instalar (compila `psutil`, exige
+> Visual C++ Build Tools). Alternativa sem extensão, via ARM REST API
+> diretamente — GET o recurso, troca `properties.template.containers[0].image`,
+> PATCH de volta:
+> ```bash
+> az rest --method get --url "https://management.azure.com/subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.App/containerApps/<nome>?api-version=2024-03-01" > current.json
+> # edite current.json (ou processe com python/jq) trocando o campo image
+> az rest --method patch --url "https://management.azure.com/subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.App/containerApps/<nome>?api-version=2024-03-01" --body @patch.json
+> ```
+
+### Achados reais desta implantação (dois bugs encontrados e corrigidos)
+
+1. **OOM / loop de restart**: com `cpu = 0.5` / `memory = "1Gi"` (config
+   inicial), o container entrava em loop de restart a cada poucos minutos —
+   visível no Log Analytics como `Uvicorn server started` se repetindo sem
+   nunca ficar estável. Causa: a pilha de ML (torch + langchain + chromadb +
+   sentence-transformers) estoura 1Gi assim que qualquer página que usa RAG é
+   acessada. Corrigido subindo para `cpu = 1.0` / `memory = "2Gi"`
+   (`infra/modules/container_app/main.tf`). Sintoma enganoso: parecia perda
+   de sessão do Streamlit, mas na verdade era o processo inteiro sendo morto.
+2. **Estado local não sobrevive a mudança de revisão**: cada `terraform
+   apply` que altera o Container App cria uma nova revisão (novo container,
+   disco efêmero zerado) — qualquer prontuário indexado via upload ou log de
+   auditoria acumulado na revisão anterior se perde. Isso é esperado dado o
+   desenho atual (índice dinâmico e log de auditoria em arquivo local dentro
+   do container, não em armazenamento compartilhado) — ver limitação
+   correspondente em `docs/relatorio.md`. Para persistência real entre
+   revisões/réplicas, os próximos passos seriam montar Azure Files no
+   Container App (para o Chroma dinâmico) e enviar o log de auditoria para o
+   Application Insights já provisionado, em vez de um arquivo local.
+
 ## 5. Limpando tudo (importante — conta de crédito limitado)
 
 ```bash

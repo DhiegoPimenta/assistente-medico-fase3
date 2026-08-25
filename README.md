@@ -21,7 +21,7 @@ automatizado** (LangGraph), com guardrails de segurança e auditoria.
 - [x] Aplicação Streamlit (chat, upload de protocolo/prontuário, consulta por paciente, auditoria) — `app/`
 - [x] Suite de testes (38 testes) — `tests/`
 - [x] Relatório técnico — [`docs/relatorio.md`](docs/relatorio.md)
-- [ ] Infraestrutura Azure + Terraform
+- [x] Infraestrutura Azure + Terraform — [`infra/`](infra/), deploy real testado e funcionando
 - [ ] Vídeo de demonstração
 
 ## Estrutura
@@ -34,8 +34,20 @@ automatizado** (LangGraph), com guardrails de segurança e auditoria.
   /core           ingestão, chain RAG, guardrails, logging, grafo de decisão
   /pages          páginas do Streamlit (chat, uploads, consulta, auditoria)
 /tests          testes unitários (guardrails, logging, anonimização, RAG, grafo)
-/infra          (em construção) Terraform (Azure)
+/infra          Terraform (Azure) — Container Apps, ACR, Key Vault, budget alert
 ```
+
+## Infraestrutura (Azure + Terraform)
+
+Deploy completo testado na assinatura Azure for Students: Container Apps
+(Consumption, scale-to-zero), Container Registry, Key Vault (segredo via
+managed identity, sem chave hardcoded), Storage Account, budget alert. Passo
+a passo reproduzível em [infra/DEPLOY.md](infra/DEPLOY.md).
+
+> ⚠️ O ambiente de deploy fica com ingress público e sem autenticação — a URL
+> não é publicada aqui de propósito (evita alguém de fora consumir a API paga
+> da Anthropic). Rode `terraform output streamlit_url` com acesso à
+> assinatura, ou veja o vídeo de demonstração.
 
 ## Aplicação Streamlit
 
@@ -49,6 +61,9 @@ Protocolo** (cresce o índice estático), **Upload de Prontuário** (cresce o
 índice dinâmico e já dispara o fluxo LangGraph — classifica intenção, verifica
 exame pendente, emite alerta ou sugere conduta cruzando prontuário + protocolo),
 **Consulta por Paciente** e **Painel de Auditoria**.
+
+Roteiro de testes com perguntas e arquivos prontos:
+[examples/GUIA_DE_TESTES.md](examples/GUIA_DE_TESTES.md).
 
 ## Fine-tuning — resumo
 

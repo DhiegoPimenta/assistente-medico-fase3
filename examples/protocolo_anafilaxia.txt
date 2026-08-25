@@ -1,0 +1,13 @@
+Protocolo de Manejo de Anafilaxia
+
+Objetivo: padronizar o reconhecimento e o tratamento de emergência da anafilaxia no Hospital Vida Nova.
+
+Critérios de identificação: início agudo de sintomas (minutos a poucas horas) envolvendo pele e/ou mucosas (urticária, angioedema, prurido) associados a pelo menos um dos seguintes: comprometimento respiratório (dispneia, sibilos, estridor, hipoxemia), queda da pressão arterial ou sintomas de disfunção orgânica, ou sintomas gastrointestinais graves após exposição a alérgeno provável.
+
+Conduta inicial: administrar adrenalina intramuscular 0,3 a 0,5mg (solução 1:1000) na face anterolateral da coxa, imediatamente, mediante validação médica; posicionar paciente em decúbito dorsal com elevação de membros inferiores, salvo desconforto respiratório; administrar oxigênio suplementar; obter acesso venoso e iniciar reposição volêmica com cristaloide em caso de hipotensão.
+
+Segunda linha: repetir adrenalina IM a cada 5 a 15 minutos se não houver melhora; considerar anti-histamínico e corticosteroide como terapia adjuvante, nunca como substituto da adrenalina.
+
+Quando acionar alerta: qualquer comprometimento respiratório ou hemodinâmico associado à suspeita de anafilaxia deve acionar o time de resposta rápida imediatamente.
+
+Observação: este protocolo orienta a conduta institucional; toda administração de adrenalina ou outra medicação deve ser validada e assinada por médico responsável antes da execução.

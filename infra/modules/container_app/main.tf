@@ -46,8 +46,11 @@ resource "azurerm_container_app" "main" {
     container {
       name   = "streamlit"
       image  = var.image
-      cpu    = 0.5
-      memory = "1Gi"
+      cpu    = 1.0
+      memory = "2Gi" # 1Gi (default) OOM-matava o container quando a pilha de
+      # ML (torch + sentence-transformers + chromadb) carregava — visível como
+      # um loop de restart no Log Analytics (Uvicorn reiniciando a cada poucos
+      # minutos), não relacionado a scale-to-zero.
 
       env {
         name        = "ANTHROPIC_API_KEY"

@@ -274,6 +274,16 @@ por causa do padrão "AAS 200mg" + "administração" — exatamente o
 comportamento de "*o que o paciente X tem?* cruzando prontuário + protocolo"
 pedido no enunciado do desafio.
 
+### 9.2 Roteiro de testes reproduzível
+
+[`examples/GUIA_DE_TESTES.md`](../examples/GUIA_DE_TESTES.md) traz perguntas
+e arquivos prontos (`examples/*.txt`) para validar as 5 abas — inclui um
+segundo exemplo end-to-end testado ao vivo na aplicação publicada no Azure:
+upload de um **Protocolo de Manejo de Anafilaxia** inédito, seguido do
+upload de um prontuário de paciente com quadro compatível, indexados na
+mesma sessão — o sistema cruzou os dois documentos recém-adicionados
+corretamente, sem precisar de reinício ou reingestão manual.
+
 ---
 
 ## 10. Testes
@@ -290,18 +300,57 @@ pytest
 
 ---
 
-## 11. Limitações e Trabalhos Futuros
+## 11. Infraestrutura Azure (Terraform)
+
+Deploy completo e testado de ponta a ponta na assinatura Azure for Students,
+via Terraform ([`infra/`](../infra/), passo a passo em
+[`infra/DEPLOY.md`](../infra/DEPLOY.md)): resource group, **budget alert**
+(sempre o primeiro recurso, antes de qualquer coisa que gere custo), Log
+Analytics + Application Insights, identidade gerenciada, Key Vault (segredo
+da Anthropic lido via managed identity — nunca hardcoded), Storage Account,
+Container Registry (sem admin/anonymous pull, só RBAC) e Container App
+(Consumption, scale-to-zero).
+
+### 11.1 Achados reais da implantação
+
+- **Restrição de região**: a assinatura tem uma Azure Policy
+  (`sys.regionrestriction`) limitando o deploy a 5 regiões específicas —
+  `brazilsouth` (escolha original) não é uma delas. Descoberto só na hora do
+  `terraform apply`; corrigido trocando para `eastus2` e documentando o
+  comando de verificação em `infra/variables.tf` para quem for replicar.
+- **OOM / loop de restart**: com a configuração inicial (0.5 vCPU / 1Gi), o
+  container entrava em loop de restart a cada poucos minutos assim que
+  qualquer página com RAG era acessada — a pilha de ML (torch + langchain +
+  chromadb + sentence-transformers) estourava a memória. O sintoma parecia
+  perda de sessão do Streamlit, mas o Log Analytics mostrou o padrão real
+  (`Uvicorn server started` se repetindo sem nunca estabilizar). Corrigido
+  subindo para 1 vCPU / 2Gi.
+- **Estado local não sobrevive a mudança de revisão**: cada atualização do
+  Container App cria uma nova revisão com disco efêmero zerado — prontuários
+  indexados via upload e o log de auditoria acumulados na revisão anterior
+  se perdem. É uma limitação de desenho conhecida (seção 12), não um bug;
+  documentada com o achado acima em `infra/DEPLOY.md`.
+
+---
+
+## 12. Limitações e Trabalhos Futuros
 
 - **Volume do dataset de fine-tuning** (80 exemplos) é pequeno; a seção 5
   mostra que isso limita a fixação de conteúdo institucional específico.
   `generate_synthetic_data.py` já está pronto para expandir esse volume.
 - **Índice estático** ainda não inclui PubMedQA/MedQuAD (conhecimento
   médico geral) — só protocolos institucionais.
+- **Estado local efêmero no Container App**: o índice dinâmico (Chroma) e o
+  log de auditoria vivem em arquivo local dentro do container — não
+  sobrevivem a uma nova revisão nem são compartilhados entre réplicas (ver
+  seção 11.1). Para persistência real em produção: montar Azure Files no
+  Container App para o índice dinâmico, e enviar o log de auditoria direto
+  para o Application Insights já provisionado (via SDK), em vez de arquivo
+  local.
 - **Índice dinâmico** usa dois pacientes fixos como fallback de
   demonstração; ingestão em massa via Synthea não foi implementada.
 - **Modelo gerador em produção**: a pilha de RAG/LangGraph hoje chama a API
   da Anthropic como *stand-in* de desenvolvimento; falta servir o adapter
   LoRA fine-tunado localmente (merge + quantização GGUF, conforme
   planejado para hospedagem em CPU no Azure Container Apps).
-- **Infraestrutura como código (Terraform/Azure)** e o **vídeo de
-  demonstração** são os itens pendentes desta entrega.
+- **Vídeo de demonstração** é o item pendente desta entrega.
