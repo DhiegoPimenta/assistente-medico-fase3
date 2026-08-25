@@ -1,0 +1,19 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+*.egg-info/
+
+# artefatos grandes de treino (não versionar no git)
+finetuning/train/checkpoints/
+finetuning/train/adapters/
+*.gguf
+*.safetensors
+*.bin
+
+# terraform
+infra/**/.terraform/
+infra/**/*.tfstate
+infra/**/*.tfstate.backup
+infra/**/.terraform.lock.hcl

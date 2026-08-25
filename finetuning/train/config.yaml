@@ -1,0 +1,49 @@
+# Configuração do fine-tuning LoRA — Assistente Médico Virtual (Hospital Vida Nova)
+
+model:
+  name: "unsloth/Llama-3.2-3B-Instruct-bnb-4bit"
+  max_seq_length: 2048
+  load_in_4bit: true
+
+lora:
+  r: 16
+  lora_alpha: 32
+  lora_dropout: 0.05
+  target_modules:
+    - q_proj
+    - k_proj
+    - v_proj
+    - o_proj
+    - gate_proj
+    - up_proj
+    - down_proj
+  bias: "none"
+
+training:
+  output_dir: "finetuning/train/adapters/hospital-vida-nova-lora"
+  num_train_epochs: 6
+  per_device_train_batch_size: 2
+  gradient_accumulation_steps: 4
+  learning_rate: 2.0e-4
+  warmup_ratio: 0.05
+  logging_steps: 5
+  save_strategy: "epoch"
+  eval_strategy: "epoch"
+  optim: "adamw_8bit"
+  seed: 42
+  load_best_model_at_end: true
+  metric_for_best_model: "eval_loss"
+  greater_is_better: false
+
+data:
+  train_path: "data/processed/train.jsonl"
+  val_path: "data/processed/val.jsonl"
+
+prompt_template: |
+  Você é o assistente médico virtual do Hospital Vida Nova. Responda com base no protocolo institucional e no conhecimento médico geral, sempre indicando quando a sugestão depende de validação médica.
+
+  ### Instrução:
+  {instruction}
+
+  ### Resposta:
+  {output}
