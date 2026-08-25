@@ -67,7 +67,14 @@ def extract_text(content) -> str:
     return "\n".join(parts)
 
 
-def answer_question(question: str, k: int = 3, usuario: str = "dev") -> RAGResult:
+def generate_raw_answer(question: str, k: int = 3) -> tuple[str, list[Document]]:
+    """Recupera + gera, SEM aplicar guardrail nem gravar log.
+
+    Usado diretamente pelo grafo LangGraph (app/core/langgraph_flow.py), que
+    aplica guardrail e log uma única vez, no ponto de convergência final do
+    fluxo — não a cada nó que gera texto. Para uso avulso (fora do grafo),
+    prefira `answer_question`, que já aplica os dois.
+    """
     retriever = get_static_retriever(k=k)
     docs = retriever.invoke(question)
 
@@ -76,7 +83,11 @@ def answer_question(question: str, k: int = 3, usuario: str = "dev") -> RAGResul
 
     llm = get_llm()
     response = llm.invoke(prompt)
-    raw_answer = extract_text(response.content)
+    return extract_text(response.content), docs
+
+
+def answer_question(question: str, k: int = 3, usuario: str = "dev") -> RAGResult:
+    raw_answer, docs = generate_raw_answer(question, k=k)
 
     guardrail = apply_guardrail(raw_answer)
     fontes = [d.metadata.get("titulo", d.metadata.get("source_id", "?")) for d in docs]
