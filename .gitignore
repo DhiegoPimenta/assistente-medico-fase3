@@ -12,6 +12,9 @@ finetuning/train/adapters/
 *.safetensors
 *.bin
 
+# índices vetoriais (gerados via app/core/ingestion.py)
+data/vectorstore/
+
 # terraform
 infra/**/.terraform/
 infra/**/*.tfstate

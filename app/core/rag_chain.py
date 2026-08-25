@@ -1,0 +1,77 @@
+"""Chain RAG conversacional sobre o índice estático (protocolos institucionais),
+com citação explícita da fonte (explainability).
+
+O modelo gerador aqui é o Claude (via API), como stand-in de desenvolvimento —
+na versão final ele é substituído pelo modelo fine-tunado servido localmente
+(ver seção 3 do documento de arquitetura). O guardrail de prescrição/decisão
+definitiva é aplicado como uma etapa determinística separada, em
+app/core/guardrails.py, sobre a resposta gerada por esta chain — nunca dependa
+só do prompt para bloquear isso.
+"""
+
+from dataclasses import dataclass, field
+
+from langchain_anthropic import ChatAnthropic
+from langchain_core.documents import Document
+
+from .ingestion import get_static_retriever
+
+SYSTEM_PROMPT = """Você é o assistente médico virtual do Hospital Vida Nova. \
+Responda SOMENTE com base nos trechos de contexto fornecidos abaixo — não use \
+conhecimento próprio para inventar condutas institucionais.
+
+Regras:
+1. Se o contexto não contiver a informação pedida, diga isso claramente em vez \
+de inventar.
+2. Sempre indique de qual protocolo/documento a informação foi retirada (cite o \
+título exato do documento entre colchetes, ex.: [Protocolo de Manejo de Sepse]).
+3. Nunca apresente uma conduta terapêutica como definitiva — deixe explícito que \
+está sujeita a validação de um médico responsável antes de qualquer execução.
+
+CONTEXTO:
+{context}
+
+PERGUNTA: {question}"""
+
+
+@dataclass
+class RAGResult:
+    answer: str
+    source_documents: list[Document] = field(default_factory=list)
+
+
+def get_llm() -> ChatAnthropic:
+    return ChatAnthropic(model="claude-sonnet-5", max_tokens=1024)
+
+
+def format_context(docs: list[Document]) -> str:
+    parts = []
+    for doc in docs:
+        titulo = doc.metadata.get("titulo", doc.metadata.get("source_id", "documento"))
+        parts.append(f"[{titulo}]\n{doc.page_content}")
+    return "\n\n---\n\n".join(parts)
+
+
+def answer_question(question: str, k: int = 3) -> RAGResult:
+    retriever = get_static_retriever(k=k)
+    docs = retriever.invoke(question)
+
+    context = format_context(docs) if docs else "(nenhum documento institucional relevante encontrado)"
+    prompt = SYSTEM_PROMPT.format(context=context, question=question)
+
+    llm = get_llm()
+    response = llm.invoke(prompt)
+
+    return RAGResult(answer=response.content, source_documents=docs)
+
+
+if __name__ == "__main__":
+    for pergunta in [
+        "Qual o protocolo do Hospital Vida Nova para sepse?",
+        "Quando devo acionar alerta em um paciente com suspeita de AVC?",
+        "Qual a capital da França?",
+    ]:
+        print(f"\n=== {pergunta} ===")
+        result = answer_question(pergunta)
+        print(result.answer)
+        print("Fontes:", [d.metadata.get("titulo") for d in result.source_documents])
