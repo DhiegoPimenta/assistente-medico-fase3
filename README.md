@@ -6,7 +6,8 @@ automatizado** (LangGraph), com guardrails de segurança e auditoria.
 
 > Todo o dataset é sintético/anonimizado desde a origem — nenhum dado real de
 > paciente é usado em nenhuma etapa. Veja [docs/arquitetura.md](docs/arquitetura.md)
-> para o documento completo de arquitetura e decisões de projeto.
+> para o documento de arquitetura e [docs/relatorio.md](docs/relatorio.md)
+> para o relatório técnico (fine-tuning, avaliação, RAG, LangGraph).
 
 ## Status
 
@@ -19,8 +20,9 @@ automatizado** (LangGraph), com guardrails de segurança e auditoria.
 - [x] Guardrails determinísticos + logging/auditoria — `app/core/guardrails.py`, `app/core/logging_config.py`
 - [x] Aplicação Streamlit (chat, upload de protocolo/prontuário, consulta por paciente, auditoria) — `app/`
 - [x] Suite de testes (38 testes) — `tests/`
+- [x] Relatório técnico — [`docs/relatorio.md`](docs/relatorio.md)
 - [ ] Infraestrutura Azure + Terraform
-- [ ] Relatório técnico + vídeo de demonstração
+- [ ] Vídeo de demonstração
 
 ## Estrutura
 
