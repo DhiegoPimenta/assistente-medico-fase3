@@ -18,6 +18,9 @@ data/vectorstore/
 # logs de auditoria (gerados em runtime)
 data/logs/
 
+# roteiro do vídeo — só local, não vai pro repo público
+examples/ROTEIRO_VIDEO.md
+
 # terraform (o .terraform.lock.hcl FICA versionado, de propósito)
 infra/**/.terraform/
 infra/**/*.tfstate

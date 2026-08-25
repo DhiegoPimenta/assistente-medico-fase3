@@ -22,7 +22,7 @@ automatizado** (LangGraph), com guardrails de segurança e auditoria.
 - [x] Suite de testes (38 testes) — `tests/`
 - [x] Relatório técnico — [`docs/relatorio.md`](docs/relatorio.md)
 - [x] Infraestrutura Azure + Terraform — [`infra/`](infra/), deploy real testado e funcionando
-- [ ] Vídeo de demonstração — roteiro pronto em [`examples/ROTEIRO_VIDEO.md`](examples/ROTEIRO_VIDEO.md)
+- [ ] Vídeo de demonstração
 
 ## Estrutura
 
