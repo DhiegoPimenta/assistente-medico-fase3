@@ -87,6 +87,25 @@ dado real que precisaria de anonimização adicional. Como o objetivo do
 fine-tuning é ensinar *formato e tom*, não *fatos* (o RAG cuida disso), dado
 sintético bem escrito é adequado — e mais seguro — para essa finalidade.
 
+### 3.3 Referências de formato usadas
+
+Sintético não significou inventar a estrutura do zero — o *conteúdo* é
+100% gerado, mas o *formato* de cada peça do dataset foi deliberadamente
+inspirado em referências reais e estabelecidas na literatura/comunidade de
+NLP clínico (tabela completa em
+[`docs/arquitetura.md`](arquitetura.md), seção 2.1):
+
+| Referência | O que orientou |
+|---|---|
+| **MIMIC-IV** | Estrutura do resumo de alta (queixa principal, HDA, HPP, evolução, exame físico, diagnóstico) usada nos modelos de documento |
+| **Brateca** | Vocabulário e estrutura de nota clínica em português |
+| **MTSamples** | Formato de laudos/receitas por especialidade |
+| **PubMedQA / MedQuAD** | Estilo de pergunta/resposta médica das FAQs — ambas abertas, sem cadastro, e ficam como próximo passo natural para o índice estático de conhecimento médico geral (seção 12) |
+
+Nenhuma dessas bases teve dado real baixado ou incluído no projeto — servem
+só como referência de formato, consultada durante a escrita dos exemplos
+semente.
+
 ---
 
 ## 4. Fine-tuning (LoRA)
