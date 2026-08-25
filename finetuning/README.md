@@ -38,8 +38,10 @@
 LoRA via [Unsloth](https://github.com/unslothai/unsloth) sobre `Llama-3.2-3B-Instruct`
 (4-bit), rodado no Google Colab (GPU T4 gratuita) através do `google-colab-cli`.
 
-Configuração em `config.yaml`. Para rodar (dentro de uma sessão Colab com GPU,
-a partir da raiz do projeto em `/content`):
+Configuração em `config.yaml`. Passo a passo completo de como provisionar a GPU
+e rodar tudo via terminal (sem abrir o notebook do navegador) em
+[COLAB.md](train/COLAB.md). Resumo — dentro de uma sessão Colab com GPU, a
+partir da raiz do projeto em `/content`:
 
 ```bash
 python finetuning/train/train_lora.py
