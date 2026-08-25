@@ -20,10 +20,9 @@ arquitetura.
                                          |
                                    [resposta final]
 
-O índice dinâmico (prontuários de pacientes) ainda não tem ingestão real via
-Synthea — usa o stub em mock_patients.py, que já permite testar e demonstrar
-o grafo completo. Basta trocar dynamic_rag_node por uma consulta ao índice
-dinâmico real quando ele existir; o resto do grafo não muda.
+O índice dinâmico já é real (Chroma, alimentado via upload no Streamlit — ver
+app/core/ingestion.py), com fallback para pacientes de demonstração fixos em
+app/core/patient_index.py enquanto a ingestão via Synthea não existe.
 """
 
 from typing import Literal, TypedDict
@@ -32,7 +31,7 @@ from langgraph.graph import END, START, StateGraph
 
 from .guardrails import apply_guardrail
 from .logging_config import log_interaction
-from .mock_patients import get_patient
+from .patient_index import get_patient
 from .rag_chain import generate_raw_answer
 
 

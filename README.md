@@ -14,22 +14,39 @@ automatizado** (LangGraph), com guardrails de segurança e auditoria.
 - [x] Pipeline de geração/anonimização de dados — `finetuning/data_prep/`
 - [x] Fine-tuning LoRA (Llama 3.2 3B + Unsloth, GPU T4 no Colab) — `finetuning/train/`
 - [x] Avaliação modelo base vs. fine-tunado — `finetuning/eval/`
-- [ ] Pipeline RAG + LangChain
-- [ ] Fluxo de decisão LangGraph
-- [ ] Guardrails determinísticos + logging/auditoria
-- [ ] Aplicação Streamlit
+- [x] Pipeline RAG + LangChain (índice estático + dinâmico, busca híbrida) — `app/core/`
+- [x] Fluxo de decisão LangGraph — `app/core/langgraph_flow.py`
+- [x] Guardrails determinísticos + logging/auditoria — `app/core/guardrails.py`, `app/core/logging_config.py`
+- [x] Aplicação Streamlit (chat, upload de protocolo/prontuário, consulta por paciente, auditoria) — `app/`
+- [x] Suite de testes (38 testes) — `tests/`
 - [ ] Infraestrutura Azure + Terraform
 - [ ] Relatório técnico + vídeo de demonstração
 
 ## Estrutura
 
 ```
-/data           dataset sintético (raw + processado para treino)
+/data           dataset sintético (raw + processado para treino) e índices vetoriais
 /finetuning     pipeline de fine-tuning: data_prep, train, eval
 /docs           documento de arquitetura e relatório técnico
-/app            (em construção) aplicação Streamlit + RAG + LangGraph
+/app            aplicação Streamlit + RAG (LangChain) + fluxo de decisão (LangGraph)
+  /core           ingestão, chain RAG, guardrails, logging, grafo de decisão
+  /pages          páginas do Streamlit (chat, uploads, consulta, auditoria)
+/tests          testes unitários (guardrails, logging, anonimização, RAG, grafo)
 /infra          (em construção) Terraform (Azure)
 ```
+
+## Aplicação Streamlit
+
+```bash
+pip install -r app/requirements.txt
+streamlit run app/streamlit_app.py
+```
+
+Cinco abas: **Chat Geral** (RAG sobre protocolos institucionais), **Upload de
+Protocolo** (cresce o índice estático), **Upload de Prontuário** (cresce o
+índice dinâmico e já dispara o fluxo LangGraph — classifica intenção, verifica
+exame pendente, emite alerta ou sugere conduta cruzando prontuário + protocolo),
+**Consulta por Paciente** e **Painel de Auditoria**.
 
 ## Fine-tuning — resumo
 
@@ -48,6 +65,9 @@ pip install -r finetuning/data_prep/requirements.txt
 pip install -r finetuning/eval/requirements.txt
 
 python finetuning/data_prep/format_dataset.py   # gera data/processed/*.jsonl
+
+pip install -r requirements-dev.txt
+pytest   # 38 testes, sem precisar de API/GPU
 ```
 
 O treino (`finetuning/train/train_lora.py`) precisa de GPU — ver instruções em
