@@ -1,0 +1,16 @@
+.git/
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+data/vectorstore/
+data/logs/
+data/processed/
+finetuning/train/adapters/
+finetuning/train/logs/
+finetuning/eval/outputs/
+docs/
+infra/
+tests/
+*.md

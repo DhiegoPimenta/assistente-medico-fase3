@@ -18,8 +18,11 @@ data/vectorstore/
 # logs de auditoria (gerados em runtime)
 data/logs/
 
-# terraform
+# terraform (o .terraform.lock.hcl FICA versionado, de propósito)
 infra/**/.terraform/
 infra/**/*.tfstate
 infra/**/*.tfstate.backup
-infra/**/.terraform.lock.hcl
+infra/**/*.secrets.tfvars
+infra/**/crash.log
+infra/**/tfplan
+infra/**/*.tfplan
