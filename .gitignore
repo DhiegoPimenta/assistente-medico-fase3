@@ -15,6 +15,9 @@ finetuning/train/adapters/
 # índices vetoriais (gerados via app/core/ingestion.py)
 data/vectorstore/
 
+# logs de auditoria (gerados em runtime)
+data/logs/
+
 # terraform
 infra/**/.terraform/
 infra/**/*.tfstate

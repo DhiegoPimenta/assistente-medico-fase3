@@ -14,7 +14,9 @@ from dataclasses import dataclass, field
 from langchain_anthropic import ChatAnthropic
 from langchain_core.documents import Document
 
+from .guardrails import apply_guardrail
 from .ingestion import get_static_retriever
+from .logging_config import log_interaction
 
 SYSTEM_PROMPT = """Você é o assistente médico virtual do Hospital Vida Nova. \
 Responda SOMENTE com base nos trechos de contexto fornecidos abaixo — não use \
@@ -38,6 +40,9 @@ PERGUNTA: {question}"""
 class RAGResult:
     answer: str
     source_documents: list[Document] = field(default_factory=list)
+    guardrail_triggered: bool = False
+    guardrail_reason: str | None = None
+    log_id: str | None = None
 
 
 def get_llm() -> ChatAnthropic:
@@ -52,7 +57,17 @@ def format_context(docs: list[Document]) -> str:
     return "\n\n---\n\n".join(parts)
 
 
-def answer_question(question: str, k: int = 3) -> RAGResult:
+def extract_text(content) -> str:
+    """`ChatAnthropic` retorna `content` como string simples ou, quando o
+    modelo usa extended thinking, como lista de blocos (thinking + text) —
+    aqui isolamos só o texto final."""
+    if isinstance(content, str):
+        return content
+    parts = [block["text"] for block in content if isinstance(block, dict) and block.get("type") == "text"]
+    return "\n".join(parts)
+
+
+def answer_question(question: str, k: int = 3, usuario: str = "dev") -> RAGResult:
     retriever = get_static_retriever(k=k)
     docs = retriever.invoke(question)
 
@@ -61,8 +76,27 @@ def answer_question(question: str, k: int = 3) -> RAGResult:
 
     llm = get_llm()
     response = llm.invoke(prompt)
+    raw_answer = extract_text(response.content)
 
-    return RAGResult(answer=response.content, source_documents=docs)
+    guardrail = apply_guardrail(raw_answer)
+    fontes = [d.metadata.get("titulo", d.metadata.get("source_id", "?")) for d in docs]
+
+    log_id = log_interaction(
+        usuario=usuario,
+        pergunta=question,
+        resposta=guardrail.text,
+        fontes=fontes,
+        guardrail_acionado=guardrail.triggered,
+        guardrail_motivo=guardrail.reason,
+    )
+
+    return RAGResult(
+        answer=guardrail.text,
+        source_documents=docs,
+        guardrail_triggered=guardrail.triggered,
+        guardrail_reason=guardrail.reason,
+        log_id=log_id,
+    )
 
 
 if __name__ == "__main__":
