@@ -2,10 +2,10 @@
 
 ## data_prep/
 
-1. `data/raw/*.jsonl` já contém um dataset semente 100% sintético:
-   - `protocolos.jsonl` — 8 protocolos clínicos institucionais
-   - `faqs.jsonl` — 37 pares pergunta/resposta
-   - `laudos_templates.jsonl` — 6 modelos de documentos (formato, sem conteúdo sensível)
+1. `data/raw/*.jsonl` já contém o dataset 100% sintético usado no treino atual:
+   - `protocolos.jsonl` — 13 protocolos clínicos institucionais
+   - `faqs.jsonl` — 57 pares pergunta/resposta
+   - `laudos_templates.jsonl` — 10 modelos de documentos (formato, sem conteúdo sensível)
 
 2. (Opcional) Expandir o volume com `generate_synthetic_data.py`, que usa a API da
    Anthropic para gerar mais exemplos no mesmo estilo:
@@ -38,14 +38,21 @@
 LoRA via [Unsloth](https://github.com/unslothai/unsloth) sobre `Llama-3.2-3B-Instruct`
 (4-bit), rodado no Google Colab (GPU T4 gratuita) através do `google-colab-cli`.
 
-Configuração em `config.yaml`. Passo a passo completo de como provisionar a GPU
-e rodar tudo via terminal (sem abrir o notebook do navegador) em
-[COLAB.md](train/COLAB.md). Resumo — dentro de uma sessão Colab com GPU, a
-partir da raiz do projeto em `/content`:
+Configuração em `config.yaml`. Duas formas de reproduzir o treino:
 
-```bash
-python finetuning/train/train_lora.py
-```
+- **Notebook** — [`train_lora_colab.ipynb`](train/train_lora_colab.ipynb),
+  abre e roda direto no Colab (clona o repositório, instala as dependências
+  e roda o treino).
+- **Terminal** — sem abrir o notebook do navegador, via `google-colab-cli`;
+  passo a passo completo em [COLAB.md](train/COLAB.md). Resumo — dentro de
+  uma sessão Colab com GPU, a partir da raiz do projeto em `/content`:
+
+  ```bash
+  python finetuning/train/train_lora.py
+  ```
+
+Log real desta execução (GPU Tesla T4, curva de loss completa) salvo em
+[`train/logs/`](train/logs/).
 
 **Resultado do primeiro treino** (80 exemplos, 72 treino / 8 validação, 6 épocas):
 
@@ -65,8 +72,9 @@ usado; `adapters/final-epoch6/` foi mantido só para comparação no relatório 
 avaliação. `config.yaml` já foi ajustado com `load_best_model_at_end: true`
 para que os próximos treinos selecionem automaticamente o melhor checkpoint.
 
-## eval/ (próximo passo)
+## eval/
 
 Avaliação comparando respostas do modelo base vs. `checkpoint-27-best`
-(mesmas perguntas de `data/processed/val.jsonl`), com métricas quantitativas
-e análise de erros para o relatório técnico.
+(mesmas perguntas de `data/processed/val.jsonl`), com ROUGE-L e LLM-juiz.
+Resultado e análise crítica em [`eval/outputs/eval_report.md`](eval/outputs/eval_report.md)
+e em [`docs/relatorio.md`](../docs/relatorio.md), seção 5.

@@ -96,12 +96,14 @@ sintético bem escrito é adequado — e mais seguro — para essa finalidade.
 - **Modelo base**: `unsloth/Llama-3.2-3B-Instruct-bnb-4bit`
 - **Método**: LoRA via [Unsloth](https://github.com/unslothai/unsloth)
   (r=16, alpha=32, dropout=0.05, todos os projections de atenção e MLP)
-- **Hardware**: GPU T4 gratuita do Google Colab, acessada via terminal
-  usando o [Colab CLI oficial](https://github.com/googlecolab/google-colab-cli)
-  — passo a passo reproduzível documentado em
-  [`finetuning/train/COLAB.md`](../finetuning/train/COLAB.md)
+- **Hardware**: GPU T4 gratuita do Google Colab. Duas formas de reproduzir:
+  o notebook [`train_lora_colab.ipynb`](../finetuning/train/train_lora_colab.ipynb)
+  (abre e roda direto no Colab), ou via terminal usando o
+  [Colab CLI oficial](https://github.com/googlecolab/google-colab-cli) —
+  passo a passo em [`finetuning/train/COLAB.md`](../finetuning/train/COLAB.md)
 - **Configuração completa**: [`finetuning/train/config.yaml`](../finetuning/train/config.yaml)
 - **Tempo de treino**: ~3 minutos para 80 exemplos, 6 épocas
+- **Log da execução real** (GPU Tesla T4): [`finetuning/train/logs/`](../finetuning/train/logs/)
 
 ### 4.2 Resultado e decisão sobre overfitting
 

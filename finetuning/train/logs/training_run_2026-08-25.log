@@ -1,0 +1,43 @@
+Execução real do fine-tuning LoRA — Google Colab (GPU T4 gratuita)
+Data: 2026-08-25
+Comando: colab exec -s train -f finetuning/train/train_lora.py --timeout 900
+(passo a passo completo de como reproduzir em finetuning/train/COLAB.md)
+
+==((====))==  Unsloth 2026.8.20: Fast Llama patching. Transformers: 5.5.0.
+   \\   /|    Tesla T4. Num GPUs = 1. Max memory: 14.563 GB. Platform: Linux.
+O^O/ \_/ \    Torch: 2.11.0+cu128. CUDA: 7.5. CUDA Toolkit: 12.8. Triton: 3.6.0
+\        /    Bfloat16 = FALSE. FA [Xformers = 0.0.35. FA2 = False]
+ "-____-"     Free license: http://github.com/unslothai/unsloth
+
+Modelo base: unsloth/Llama-3.2-3B-Instruct-bnb-4bit (4-bit)
+LoRA: r=16, alpha=32, dropout=0.05, target_modules=[q,k,v,o,gate,up,down]_proj
+Trainable parameters = 24,313,856 of 3,237,063,680 (0.75% trained)
+
+Dataset: data/processed/train.jsonl (72 exemplos) / val.jsonl (8 exemplos)
+Num Epochs = 6 | Total steps = 54
+Batch size per device = 2 | Gradient accumulation steps = 4
+Total batch size (2 x 4 x 1) = 8
+
+Resultado por época (loss de treino e validação):
+
+ Epoch  Training Loss  Validation Loss
+ -----  -------------  ---------------
+   1        2.379270         1.567547
+   2        1.239170         1.372597
+   3        0.995566         1.281930   <- melhor val loss (checkpoint usado)
+   4        0.660604         1.289882
+   5        0.477501         1.349369
+   6        0.390445         1.353106
+
+Observação: overfitting a partir da época 4 (val loss volta a subir enquanto
+train loss continua caindo). O checkpoint da época 3 (checkpoint-27) foi o
+escolhido para avaliação e uso — não o checkpoint final da época 6.
+Análise completa em docs/relatorio.md, seção 4.2, e
+finetuning/eval/outputs/eval_report.md.
+
+Tempo total de treino: ~3 minutos (54 steps).
+
+Adapter LoRA salvo em:
+finetuning/train/adapters/hospital-vida-nova-lora/checkpoint-27
+finetuning/train/adapters/hospital-vida-nova-lora/final (época 6, mantido
+só para comparação — ver docs/relatorio.md)
