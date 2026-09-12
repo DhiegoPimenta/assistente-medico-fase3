@@ -9,6 +9,8 @@ automatizado** (LangGraph), com guardrails de segurança e auditoria.
 > para o documento de arquitetura e [docs/relatorio.md](docs/relatorio.md)
 > para o relatório técnico (fine-tuning, avaliação, RAG, LangGraph).
 
+📺 **Vídeo de demonstração**: https://youtu.be/dXJqOViUKnw
+
 ## Status
 
 - [x] Dataset sintético (protocolos, FAQs, modelos de documento) — `data/`
@@ -22,7 +24,7 @@ automatizado** (LangGraph), com guardrails de segurança e auditoria.
 - [x] Suite de testes (38 testes) — `tests/`
 - [x] Relatório técnico — [`docs/relatorio.md`](docs/relatorio.md)
 - [x] Infraestrutura Azure + Terraform — [`infra/`](infra/), deploy real testado e funcionando
-- [ ] Vídeo de demonstração
+- [x] Vídeo de demonstração — https://youtu.be/dXJqOViUKnw
 
 ## Estrutura
 
